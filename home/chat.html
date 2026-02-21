@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat | Campus</title>
+    <link rel="stylesheet" href="chat.css?v=2.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+<div class="frame sidebar">
+    <div id="map"></div>
+    <input class="input" type="text" name="latitude" id="latitudeInput" placeholder="Latitude">
+    <input class="input" type="text" name="longitude" id="longitudeInput" placeholder="Longitude">
+    <input class="input" type="text" name="ip" id="ipInput" placeholder="IP Address">
+</div>
+
+<div class="frame">
+    <div class="content" id="content"></div>
+    <div class="inputBox">
+        <input class="messageInput" type="text" id="messageInput" placeholder="Digite sua mensagem">
+        <button class="sendButton" type="button" id="sendButton">➤</button>
+    </div>
+</div>
+
+<script src="chat.js?v=2.0"></script>
+</body>
+</html>

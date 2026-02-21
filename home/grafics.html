@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>AAPL - Gráfico Dark Mode (robusto)</title>
+<style>
+  body { background:#0f1113; color:#fff; font-family: Inter, Arial; margin:0; padding:24px; }
+  #chartWrapper { width:90%; max-width:1000px; margin: 24px auto; }
+  #msg { text-align:center; margin-top:6px; color:#bbb; }
+</style>
+</head>
+<body>
+  <h2 style="text-align:center">AAPL — Fechamento (Dark Mode)</h2>
+  <div id="chartWrapper"><canvas id="appleChart"></canvas></div>
+  <div id="msg">Carregando...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+  // URL do backend/proxy local (recomendado)
+  const API_URL = 'http://localhost:3000/api/eod?symbol=AAPL&limit=60';
+  // Se você tiver uma API pública com CORS, coloque ela aqui diretamente.
+
+  async function getHistoricalData() {
+    try {
+      const res = await fetch(API_URL);
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('Resposta não ok:', res.status, text);
+        return { labels: [], prices: [], error: `HTTP ${res.status}` };
+      }
+      const json = await res.json();
+      console.log('Resposta da API (raw):', json);
+
+      // Tenta localizar o array do histórico em várias chaves comuns
+      let history = null;
+      const candidates = ['data', 'historical', 'history', 'prices', 'results', 'values'];
+      for (const k of candidates) {
+        if (Array.isArray(json[k]) && json[k].length > 0) {
+          history = json[k];
+          console.log('Usando chave:', k);
+          break;
+        }
+      }
+      // Se for uma API simples que retorna um array raiz
+      if (!history && Array.isArray(json) && json.length > 0) history = json;
+
+      // Última tentativa: algumas APIs retornam { 'dataset': { 'data': [...] } }
+      if (!history && json.dataset && Array.isArray(json.dataset.data)) history = json.dataset.data;
+
+      if (!history) {
+        console.warn('Não achei array de histórico na resposta.');
+        return { labels: [], prices: [], error: 'Formato inesperado da API' };
+      }
+
+      // Normaliza: cada item pode ser {date, close} ou [date, close, ...]
+      const labels = [];
+      const prices = [];
+      for (const item of history) {
+        if (!item) continue;
+        if (Array.isArray(item)) {
+          // ex: [ '2026-02-10', 153.23, ... ] -> assumimos index 0 = date, 4 = close (ou 1)
+          const date = item[0];
+          const close = item[4] ?? item[1];
+          if (date && close != null) { labels.push(date); prices.push(Number(close)); }
+        } else {
+          // objeto
+          const date = item.date || item.datetime || item.t || item.timestamp;
+          const close = item.close ?? item.Close ?? item.c ?? item.adjClose ?? item.adj_close;
+          if (date && close != null) { labels.push(date); prices.push(Number(close)); }
+        }
+      }
+
+      if (labels.length === 0) {
+        console.warn('Não extrai labels/preços do histórico:', history[0]);
+        return { labels: [], prices: [], error: 'Não foi possível extrair preços' };
+      }
+
+      // Ordem cronológica (do mais antigo para o mais recente)
+      return { labels: labels.reverse(), prices: prices.reverse(), error: null };
+    } catch (err) {
+      console.error('Erro no fetch:', err);
+      return { labels: [], prices: [], error: err.message || String(err) };
+    }
+  }
+
+  async function draw() {
+    const msgEl = document.getElementById('msg');
+    msgEl.textContent = 'Buscando dados...';
+    const { labels, prices, error } = await getHistoricalData();
+    if (error) {
+      msgEl.textContent = 'Erro ao buscar dados: ' + error;
+    } else {
+      msgEl.textContent = '';
+    }
+
+    const ctx = document.getElementById('appleChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'AAPL Fechamento (USD)',
+          data: prices,
+          borderColor: '#4bc0c0',
+          backgroundColor: 'rgba(75,192,192,0.12)',
+          tension: 0.15,
+          pointRadius: 0,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#fff' } } },
+        scales: {
+          x: { ticks: { color: '#fff' }, grid: { color: '#222' } },
+          y: { ticks: { color: '#fff' }, grid: { color: '#222' } }
+        }
+      }
+    });
+  }
+
+  draw();
+  </script>
+</body>
+</html>

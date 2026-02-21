@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa | Campus</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="map.css?v=2.0"/>
+</head>
+
+<body>
+<div class="frame">
+    <div class="header">        
+            <div class="title">
+                <img src="../canvas.png" alt="Ícone" class="icon">
+                <h2>Campus Map</h2>
+                <button id="leave">✖ Sair</button>
+            </div>
+        </div>
+    <div id="map"></div>
+    
+    <input type="text" id="latitudeInput" placeholder="Latitude">
+    <input type="text" id="longitudeInput" placeholder="Longitude">
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="map.js?v=1.0"></script>
+</body>
+</html>

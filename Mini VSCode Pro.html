@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>Mini VSCode Pro</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: monospace;
+    background: #1e1e1e;
+    color: white;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 200px;
+    background: #252526;
+    padding: 10px;
+    border-right: 1px solid #333;
+}
+
+.file {
+    padding: 5px;
+    cursor: pointer;
+    color: #9cdcfe;
+}
+
+.file:hover {
+    background: #37373d;
+}
+
+/* Main */
+#main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Editor */
+#editor {
+    flex: 1;
+    padding: 10px;
+    outline: none;
+    overflow-y: auto;
+    white-space: pre;
+}
+
+/* Syntax Colors */
+.string {
+    color: #dcdcaa; /* amarelo */
+}
+
+.keyword {
+    color: #c586c0; /* rosa escuro */
+}
+
+.function-name {
+    color: #bb86fc; /* roxo */
+}
+
+/* Terminal */
+#terminal {
+    height: 200px;
+    background: #111;
+    border-top: 1px solid #333;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+#runBtn {
+    background: #0e639c;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#runBtn:hover {
+    background: #1177bb;
+}
+
+.output { color: #00ff88; }
+.error { color: #ff4c4c; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+    <div class="file">index.js</div>
+</div>
+
+<div id="main">
+
+<div id="editor" contenteditable="true">function helloworlrd() {
+    console.log("Hello")
+}
+
+helloworlrd()</div>
+
+<div style="padding:5px; background:#2d2d2d;">
+    <button id="runBtn">▶ Run</button>
+</div>
+
+<div id="terminal"></div>
+</div>
+
+<script>
+const editor = document.getElementById("editor");
+const terminal = document.getElementById("terminal");
+const runBtn = document.getElementById("runBtn");
+
+/* ========= SYNTAX HIGHLIGHT ========= */
+
+function highlightCode(code) {
+    // Escapar HTML
+    code = code
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    // Strings
+    code = code.replace(/(["'`])(.*?)(\1)/g, 
+        '<span class="string">$1$2$3</span>'
+    );
+
+    // function keyword
+    code = code.replace(/\bfunction\b/g, 
+        '<span class="keyword">function</span>'
+    );
+
+    // function name
+    code = code.replace(/function\s+([a-zA-Z0-9_]+)/g, 
+        'function <span class="function-name">$1</span>'
+    );
+
+    return code;
+}
+
+editor.addEventListener("keydown", function(e) {
+
+    const pairs = {
+        "{": "}",
+        "(": ")",
+        "[": "]"
+    };
+
+    if (pairs[e.key]) {
+        e.preventDefault();
+
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+
+        const open = e.key;
+        const close = pairs[e.key];
+
+        // Inserir { }
+        const textNode = document.createTextNode(open + close);
+        range.insertNode(textNode);
+
+        // Colocar cursor no meio
+        range.setStart(textNode, 1);
+        range.setEnd(textNode, 1);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+});
+editor.addEventListener("keydown", function(e) {
+
+    const pairs = {
+        "{": "}",
+        "(": ")",
+        "[": "]",
+        '"': '"',
+        "'": "'",
+        "`": "`"
+    };
+
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+
+    const currentChar = range.startContainer.textContent?.[range.startOffset];
+
+    /* =============================
+       AUTO CLOSE () {} [] "" ''
+    ============================== */
+    if (pairs[e.key]) {
+        e.preventDefault();
+
+        const open = e.key;
+        const close = pairs[e.key];
+
+        // Inserir par
+        const textNode = document.createTextNode(open + close);
+        range.insertNode(textNode);
+
+        // Cursor no meio
+        range.setStart(textNode, 1);
+        range.setEnd(textNode, 1);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return;
+    }
+
+    /* =============================
+       PULAR FECHAMENTO DUPLICADO
+    ============================== */
+    if (Object.values(pairs).includes(e.key)) {
+        if (currentChar === e.key) {
+            e.preventDefault();
+            range.setStart(range.startContainer, range.startOffset + 1);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
+
+    /* =============================
+       AUTO INDENTAÇÃO
+    ============================== */
+    if (e.key === "Enter") {
+        e.preventDefault();
+
+        const text = editor.innerText;
+        const beforeCursor = text.substring(0, range.startOffset);
+
+        const lines = beforeCursor.split("\n");
+        const currentLine = lines[lines.length - 1];
+
+        const indentMatch = currentLine.match(/^\s*/);
+        let indent = indentMatch ? indentMatch[0] : "";
+
+        // Se linha termina com {
+        if (currentLine.trim().endsWith("{")) {
+            indent += "    ";
+        }
+
+        const insertText = "\n" + indent;
+
+        const textNode = document.createTextNode(insertText);
+        range.insertNode(textNode);
+
+        range.setStart(textNode, insertText.length);
+        range.collapse(true);
+
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+});
+/* ========= EXECUTAR ========= */
+
+function printToTerminal(text, isError=false) {
+    const line = document.createElement("div");
+    line.className = isError ? "error" : "output";
+    line.textContent = text;
+    terminal.appendChild(line);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+runBtn.addEventListener("click", () => {
+    terminal.innerHTML = "";
+
+    try {
+        const originalLog = console.log;
+        console.log = function(message) {
+            printToTerminal(message);
+        };
+
+        eval(editor.innerText);
+
+        console.log = originalLog;
+    } catch (err) {
+        printToTerminal(err.message, true);
+    }
+});
+</script>
+
+
+</body></html>

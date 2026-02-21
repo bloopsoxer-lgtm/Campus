@@ -1,0 +1,236 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+body::before, body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 0.8s ease-in-out;
+    pointer-events: none;
+    opacity: 0;
+}
+
+body::before { background-image: url("../dia.png"); opacity: 1; }
+body::after { background-image: url("../noite.png"); }
+body.noite::before { opacity: 0; }
+body.noite::after { opacity: 1; }
+html.noite body::before { opacity: 0 !important; }
+html.noite body::after { opacity: 1 !important; }
+html.dia body::before { opacity: 1 !important; }
+html.dia body::after { opacity: 0 !important; }
+
+.frame {
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+    max-width: 90%;
+    background-color: rgba(63, 63, 63, 0.686);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.273);
+    border-radius: 12px;
+    box-sizing: border-box;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 70px;
+    background-color: rgba(77, 77, 77, 0.644);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.273);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.title h2 {
+    font-size: 25px;
+    font-weight: 650;
+    letter-spacing: 1px;
+    user-select: none;
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    user-select: none;
+}
+
+.title button {
+    border-color: #b1b1b160;
+    background-color: rgba(255, 93, 93, 0.407);
+    border-radius: 5px;
+    border-width: 1px;
+    margin-left: 13rem;
+    color: #fff;
+    width: 70px;
+    height: 35px;
+    transition: 0.2s;
+}
+
+.title button:hover {
+    border-color: #a9a9a97d;
+    background-color: rgba(255, 93, 93, 0.349);
+    border-radius: 5px;
+    border-width: 1px;
+    color: #efefef;
+    width: 77px;
+    height: 37px;
+}
+
+.title button:active {
+    border-color: #b1b1b1;
+    background-color: rgba(255, 93, 93, 0.407);
+    border-radius: 5px;
+    border-width: 1px;
+    margin-left: 13rem;
+    color: #fff;
+    width: 70px;
+    height: 35px;
+    transition: 0.2s;
+}
+
+.profilebasicinfo {
+    display: flex;
+    gap: 10px;
+    color: #fff;
+}
+
+.avatar {
+    background-color: rgba(255, 255, 255, 0.547);
+    border-color: rgba(255, 255, 255, 0.547);
+    height: 100px;
+    width: 100px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 50px;
+    object-fit: cover;
+    padding: 8px;
+    border-radius: 100px;
+}
+
+.textos {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.textos h2 {
+    user-select: none;
+    font-size: 25px;
+    font-weight: 650;
+    letter-spacing: 1px;
+    line-height: 0;
+    margin: 0;
+}
+
+.textos p {
+    margin-bottom: 1rem;
+    color: rgb(241, 241, 241);
+    font-size: 15px;
+}
+
+.textos button {
+    border-color: #b1b1b123;
+    background-color: rgba(93, 255, 112, 0.407);
+    border-radius: 5px;
+    border-width: 1px;
+    color: #fff;
+    width: 125px;
+    height: 35px;
+    transition: 0.2s;
+}
+
+.textos button:hover {
+    border-color: #a9a9a931;
+    background-color: rgba(51, 177, 65, 0.349);
+    border-radius: 5px;
+    border-width: 1px;
+    color: #efefef;
+    width: 128px;
+    height: 37px;
+}
+
+.textos button:active {
+    border-color: #b1b1b123;
+    background-color: rgba(93, 255, 112, 0.407);
+    border-radius: 5px;
+    border-width: 1px;
+    color: #fff;
+    width: 125px;
+    height: 35px;
+    transition: 0.2s;
+}
+
+.info {
+    display: flex;
+    flex-direction: row; 
+    gap: 10px;
+
+    align-self: center;
+    margin: 10px;
+    border-radius: 5px;
+    min-height: 60px;
+    max-height: 70px;
+    width: 500px;
+
+    transition: 0.2s;
+    transform-origin: center;
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    margin-top: 10px;
+    object-fit: contain;
+}
+
+.info-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    height: 100%;
+}
+
+.info:hover {
+    transform: scaleY(1.15);
+}
+
+.info h3 {
+    font-size: 18px;
+    margin: 8px 0 0 10px;
+    line-height: 1;
+}
+
+.info p {
+    margin: 6px 0 8px 10px;
+    font-size: 13px;
+    line-height: 1;
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Campus</title>
+    <link rel="stylesheet" href="room.css?v=2.0">
+    <script src="theme.js" defer></script>
+</head>
+<body>
+    <div class="frame">
+        <div class="title">
+            <img src="../canvas.png" alt="Ícone" class="icon">
+            <h1>Campus</h1>
+        </div>
+        <h3>Nome do Chat</h3>
+        <input id="nameInput" class="input-chat" placeholder="Digite o nome do chat" maxlength="42"></input>
+            
+        <h3>Codigo do Chat</h3>
+        <input id="codeInput" class="input-chat code" placeholder="# | Digite o código do chat" maxlength="6"></input>
+        
+        <h3>Descrição do Chat</h3>
+        <textarea class="input-chat description" placeholder="Digite a descrição do chat"></textarea>
+
+        <div class="buttons">
+            <button id="cancel">Cancelar</button>
+            <button id="enter">Criar Sala</button>
+        </div>
+    </div>
+    <script>
+        const codeInput = document.querySelector('.code');
+        if (codeInput) {
+            codeInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            });
+        }
+    </script>
+    <script src="room.js"></script>
+</body>
+</html>
